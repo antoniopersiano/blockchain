@@ -1,0 +1,30 @@
+version: '3'
+services:
+  db:
+    image: postgres:latest
+    container_name: cl-postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=iDbPsv62ciYNWfS2
+      - POSTGRES_DB=postgres
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
+  chainlink:
+    container_name: chainlink-4
+    image: smartcontract/chainlink:2.0.0
+    depends_on:
+      - db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - '6688:6688'
+    volumes:
+      - .chainlink-sepolia:/chainlink
+    command: ["node", "-config", "/chainlink/config.toml", "-secrets", "/chainlink/secrets.toml", "start", "-a", "/chainlink/.api"]
+    restart: always
+volumes:
+  db:
+    driver: local
